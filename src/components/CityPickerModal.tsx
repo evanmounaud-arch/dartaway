@@ -23,7 +23,8 @@ export default function CityPickerModal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center p-6"
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ padding: "24px" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -32,14 +33,12 @@ export default function CityPickerModal({
           <motion.div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
           />
 
           {/* Modal */}
           <motion.div
-            className="relative z-10 w-full max-w-xl max-h-[80vh] overflow-y-auto rounded-2xl bg-black/80 backdrop-blur-xl border border-white/10 shadow-2xl"
+            className="relative z-10 w-full max-w-xl rounded-2xl bg-black/80 backdrop-blur-xl border border-white/10 shadow-2xl overflow-y-auto"
+            style={{ maxHeight: "80vh" }}
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -48,38 +47,43 @@ export default function CityPickerModal({
             {/* Close button */}
             <button
               onClick={onClose}
-              className="absolute top-5 right-5 p-2.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors cursor-pointer z-10"
+              className="absolute z-10 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              style={{ top: "20px", right: "20px", padding: "10px" }}
             >
               <X size={18} />
             </button>
 
-            {/* Content with generous padding */}
-            <div className="p-8">
+            {/* Content */}
+            <div style={{ padding: "36px 32px 32px" }}>
               {/* Header */}
-              <div className="mb-8 text-center">
-                <span className="text-4xl">{country.flag}</span>
-                <h2 className="mt-3 text-xl font-bold text-white">
+              <div className="text-center" style={{ marginBottom: "32px" }}>
+                <span style={{ fontSize: "48px" }}>{country.flag}</span>
+                <h2 className="font-bold text-white" style={{ fontSize: "22px", marginTop: "12px" }}>
                   {country.name}
                 </h2>
-                <p className="text-xs text-white/50 mt-1.5">
+                <p className="text-white/50" style={{ fontSize: "13px", marginTop: "8px" }}>
                   Choisis ta ville de destination
                 </p>
               </div>
 
               {/* City list */}
-              <div className="space-y-4">
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 {country.cities.map((city, i) => (
                   <motion.button
                     key={city.id}
                     onClick={() => onSelectCity(city)}
-                    className="flex items-center gap-5 w-full rounded-xl bg-white/5 border border-white/10 p-5 text-left transition-colors hover:bg-white/10 cursor-pointer"
+                    className="flex items-center w-full rounded-xl bg-white/5 border border-white/10 text-left transition-colors hover:bg-white/10 cursor-pointer"
+                    style={{ padding: "20px", gap: "20px" }}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
                   >
-                    <div className="h-20 w-28 rounded-xl overflow-hidden flex-shrink-0 bg-white/5">
+                    <div
+                      className="rounded-xl overflow-hidden flex-shrink-0 bg-white/5"
+                      style={{ height: "80px", width: "112px" }}
+                    >
                       <img
                         src={city.imageUrl}
                         alt={city.name}
@@ -87,15 +91,15 @@ export default function CityPickerModal({
                         loading="lazy"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.parentElement!.innerHTML = `<div class="h-full w-full flex items-center justify-center text-2xl bg-white/5">${country.flag}</div>`;
+                          target.parentElement!.innerHTML = `<div style="height:100%;width:100%;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(255,255,255,0.03)">${country.flag}</div>`;
                         }}
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-sm font-semibold text-white">
+                      <h3 className="font-semibold text-white" style={{ fontSize: "15px" }}>
                         {city.name}
                       </h3>
-                      <p className="text-xs text-white/50 line-clamp-2 mt-1 leading-relaxed">
+                      <p className="text-white/50 line-clamp-2" style={{ fontSize: "12px", marginTop: "6px", lineHeight: "1.5" }}>
                         {city.description}
                       </p>
                     </div>
