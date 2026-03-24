@@ -33,7 +33,7 @@ export default function Home() {
   const [showCityGuide, setShowCityGuide] = useState(false);
   const [showTripManager, setShowTripManager] = useState(false);
   const [slackTrip, setSlackTrip] = useState<Trip | null>(null);
-  const [showDartAnimation, setShowDartAnimation] = useState(false);
+  const [dartPhase, setDartPhase] = useState<"idle" | "flying" | "impact">("idle");
 
   // Toast
   const [toast, setToast] = useState<string | null>(null);
@@ -79,7 +79,7 @@ export default function Home() {
         globeRef.current?.spinAndZoom(country.lat, country.lng);
         setTimeout(() => openCountry(country), 1600);
       } else {
-        showToast(`${countryName} n'est pas encore disponible 🌍`);
+        showToast(`${countryName} n'est pas encore disponible`);
       }
     },
     [openCountry]
@@ -88,20 +88,24 @@ export default function Home() {
   const handleThrowDart = () => {
     if (isThrowing) return;
     setIsThrowing(true);
-    setShowDartAnimation(true);
 
     const country = getRandomCountry();
 
-    // Dart flies for 1s, then globe spins
-    setTimeout(() => {
-      setShowDartAnimation(false);
-      globeRef.current?.spinAndZoom(country.lat, country.lng);
-    }, 1000);
+    // Phase 1: dart flies (0-1.2s) — globe spins fast simultaneously
+    setDartPhase("flying");
+    globeRef.current?.spinAndZoom(country.lat, country.lng);
 
+    // Phase 2: impact flash (1.2s)
     setTimeout(() => {
+      setDartPhase("impact");
+    }, 1200);
+
+    // Phase 3: clean up, open modal (3.5s)
+    setTimeout(() => {
+      setDartPhase("idle");
       setIsThrowing(false);
       openCountry(country);
-    }, 4000);
+    }, 3500);
   };
 
   const handleSelectCity = (city: City) => {
@@ -128,7 +132,7 @@ export default function Home() {
     setSelectedCity(null);
     setSelectedCountry(null);
     fireConfetti();
-    showToast(`${city.name}, ${country.name} ajouté à vos voyages ! 🎉`);
+    showToast(`${city.name}, ${country.name} ajouté à vos voyages !`);
   };
 
   const handleCloseCityPicker = () => {
@@ -186,7 +190,8 @@ export default function Home() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
         onClick={() => setShowTripManager(true)}
-        className="absolute top-8 right-8 z-10 flex items-center justify-center gap-2.5 px-6 py-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/80 hover:bg-white/20 hover:text-white transition-all cursor-pointer"
+        className="absolute top-8 right-8 z-10 flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/80 hover:bg-white/20 hover:text-white transition-all cursor-pointer"
+        style={{ padding: "12px 24px" }}
       >
         <Plane size={15} />
         <span className="text-xs font-medium">Mes voyages ({trips.length})</span>
@@ -199,53 +204,91 @@ export default function Home() {
           whileTap={{ scale: 0.95 }}
           onClick={handleThrowDart}
           disabled={isThrowing}
-          className="flex items-center justify-center gap-3 px-12 py-4 rounded-full bg-gradient-to-r from-violet-600 to-orange-500 text-white font-semibold text-sm shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-shadow disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="flex items-center gap-3 rounded-full bg-gradient-to-r from-violet-600 to-orange-500 text-white font-semibold text-sm shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-shadow disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          style={{ padding: "16px 48px" }}
         >
-          <MapPin size={16} />
+          <MapPin size={18} />
           {isThrowing ? "En vol..." : "Lancer la fléchette"}
         </motion.button>
       </div>
 
-      {/* Dart throw animation — arc from bottom button toward globe center */}
+      {/* Dart throw animation */}
       <AnimatePresence>
-        {showDartAnimation && (
+        {dartPhase === "flying" && (
           <motion.div
             className="fixed inset-0 z-30 pointer-events-none"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0.3 } }}
+            exit={{ opacity: 0, transition: { duration: 0.2 } }}
           >
-            {/* Dart emoji flying in an arc */}
+            {/* Dart — starts from bottom center, arcs toward the globe */}
             <motion.div
-              className="absolute text-4xl"
+              className="absolute text-5xl"
               style={{
                 left: "50%",
-                bottom: 0,
-                marginLeft: "-20px",
-                filter: "drop-shadow(0 0 16px rgba(124, 58, 237, 0.8))",
+                bottom: "80px",
+                marginLeft: "-24px",
+                filter: "drop-shadow(0 0 20px rgba(124, 58, 237, 0.9))",
               }}
-              initial={{ y: 0, x: 0, scale: 1.5, opacity: 1, rotate: -45 }}
               animate={{
-                y: [0, -200, -window.innerHeight / 2 + 40],
-                x: [0, -30, 0],
-                scale: [1.5, 1.2, 0.6],
-                opacity: [1, 1, 0],
-                rotate: [-45, -20, 0],
+                y: [0, -150, -(typeof window !== "undefined" ? window.innerHeight * 0.45 : 400)],
+                x: [0, -40, 0],
+                scale: [1.6, 1.3, 0.4],
+                opacity: [1, 1, 0.3],
+                rotate: [-45, -25, 10],
               }}
               transition={{
-                duration: 0.9,
-                ease: [0.22, 1, 0.36, 1],
-                times: [0, 0.5, 1],
+                duration: 1.1,
+                ease: [0.25, 0.46, 0.45, 0.94],
+                times: [0, 0.4, 1],
               }}
             >
               🎯
             </motion.div>
-            {/* Impact flash at globe center */}
+
+            {/* Trail particles */}
+            {[...Array(5)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  left: "50%",
+                  bottom: "100px",
+                  width: "6px",
+                  height: "6px",
+                  background: i % 2 === 0 ? "#7c3aed" : "#f97316",
+                }}
+                animate={{
+                  y: [0, -80 - i * 40, -(typeof window !== "undefined" ? window.innerHeight * 0.35 : 300) + i * 20],
+                  x: [0, -20 + i * 10, (i - 2) * 15],
+                  opacity: [0, 0.8, 0],
+                  scale: [0.5, 1, 0],
+                }}
+                transition={{
+                  duration: 1.0,
+                  delay: i * 0.05,
+                  ease: "easeOut",
+                }}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Impact flash */}
+      <AnimatePresence>
+        {dartPhase === "impact" && (
+          <motion.div
+            className="fixed inset-0 z-30 pointer-events-none flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
             <motion.div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-orange-400"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: [0, 8, 0], opacity: [0, 0.6, 0] }}
-              transition={{ delay: 0.75, duration: 0.5, ease: "easeOut" }}
-              style={{ boxShadow: "0 0 40px 20px rgba(249,115,22,0.4)" }}
+              className="w-6 h-6 rounded-full bg-orange-400"
+              initial={{ scale: 0, opacity: 0.8 }}
+              animate={{ scale: [0, 6, 0], opacity: [0.8, 0.4, 0] }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              style={{ boxShadow: "0 0 60px 30px rgba(249,115,22,0.5), 0 0 100px 50px rgba(124,58,237,0.3)" }}
             />
           </motion.div>
         )}
@@ -258,7 +301,8 @@ export default function Home() {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-28 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium"
+            className="fixed bottom-28 left-1/2 -translate-x-1/2 z-50 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium"
+            style={{ padding: "12px 24px" }}
           >
             {toast}
           </motion.div>
