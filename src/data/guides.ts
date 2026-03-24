@@ -59,9 +59,9 @@ export const guides: Record<string, CityGuide> = {
     budgetPerDay: "30-60€",
     activities: [
       { name: "Place Jemaa el-Fna", type: "visit", description: "Le cœur battant de Marrakech — conteurs, musiciens, stands de jus d'orange", imageUrl: "https://images.unsplash.com/photo-1587974928442-77dc3e0dba72?w=600" },
-      { name: "Tagine au Café des Épices", type: "food", description: "Tagine d'agneau aux pruneaux avec vue sur la place", imageUrl: "https://images.unsplash.com/photo-1541518763-a2d3e3363534?w=600" },
+      { name: "Tagine au Café des Épices", type: "food", description: "Tagine d'agneau aux pruneaux avec vue sur la place", imageUrl: "https://images.unsplash.com/photo-1511690743698-d9d18f7e20f1?w=600" },
       { name: "Jardin Majorelle", type: "visit", description: "Oasis bleu de Yves Saint-Laurent, un bijou botanique", imageUrl: "https://images.unsplash.com/photo-1591017403286-fd8493524e1e?w=600", tip: "Y aller tôt le matin pour éviter la foule" },
-      { name: "Hammam traditionnel", type: "activity", description: "Expérience spa authentique avec gommage au savon noir", imageUrl: "https://images.unsplash.com/photo-1540555700478-4be289fbec6b?w=600" },
+      { name: "Hammam traditionnel", type: "activity", description: "Expérience spa authentique avec gommage au savon noir", imageUrl: "https://images.unsplash.com/photo-1600334129128-685c5582fd35?w=600" },
     ],
   },
   rio: {

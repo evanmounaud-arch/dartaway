@@ -145,7 +145,7 @@ export const countries: Country[] = [
     lat: 56.1,
     lng: -106.3,
     cities: [
-      { id: "montreal", name: "Montréal", description: "Mélange unique de culture francophone et énergie nord-américaine", imageUrl: "https://images.unsplash.com/photo-1559587952-e tried?w=800", lat: 45.5, lng: -73.57 },
+      { id: "montreal", name: "Montréal", description: "Mélange unique de culture francophone et énergie nord-américaine", imageUrl: "https://images.unsplash.com/photo-1519178614-68673b201f36?w=800", lat: 45.5, lng: -73.57 },
       { id: "vancouver", name: "Vancouver", description: "Entre montagnes enneigées et océan Pacifique", imageUrl: "https://images.unsplash.com/photo-1559511260-66a68eb2dc18?w=800", lat: 49.28, lng: -123.12 },
       { id: "quebec-city", name: "Québec", description: "Vieille ville fortifiée, charme européen en Amérique", imageUrl: "https://images.unsplash.com/photo-1568127861456-a56e61e1c3f6?w=800", lat: 46.81, lng: -71.21 },
     ],

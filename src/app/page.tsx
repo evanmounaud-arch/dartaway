@@ -91,21 +91,25 @@ export default function Home() {
 
     const country = getRandomCountry();
 
-    // Phase 1: dart flies (0-1.2s) — globe spins fast simultaneously
-    setDartPhase("flying");
+    // Phase 1: globe spins fast then zooms to country (0-3s)
     globeRef.current?.spinAndZoom(country.lat, country.lng);
 
-    // Phase 2: impact flash (1.2s)
+    // Phase 2: dart flies in (after globe is positioned) (3s)
+    setTimeout(() => {
+      setDartPhase("flying");
+    }, 2800);
+
+    // Phase 3: impact (4.2s)
     setTimeout(() => {
       setDartPhase("impact");
-    }, 1200);
+    }, 4000);
 
-    // Phase 3: clean up, open modal (3.5s)
+    // Phase 4: cleanup + open modal (4.8s)
     setTimeout(() => {
       setDartPhase("idle");
       setIsThrowing(false);
       openCountry(country);
-    }, 3500);
+    }, 4800);
   };
 
   const handleSelectCity = (city: City) => {
@@ -219,53 +223,64 @@ export default function Home() {
             className="fixed inset-0 z-30 pointer-events-none"
             exit={{ opacity: 0, transition: { duration: 0.2 } }}
           >
-            {/* Dart — starts from bottom center, arcs toward the globe */}
+            {/* Dart — starts from top-right, arcs to center of screen */}
             <motion.div
               className="absolute text-5xl"
               style={{
-                left: "50%",
-                bottom: "80px",
-                marginLeft: "-24px",
+                top: "5%",
+                right: "5%",
                 filter: "drop-shadow(0 0 20px rgba(124, 58, 237, 0.9))",
               }}
+              initial={{
+                x: 0,
+                y: 0,
+                rotate: -45,
+                scale: 1.4,
+                opacity: 1,
+              }}
               animate={{
-                y: [0, -150, -(typeof window !== "undefined" ? window.innerHeight * 0.45 : 400)],
-                x: [0, -40, 0],
-                scale: [1.6, 1.3, 0.4],
-                opacity: [1, 1, 0.3],
-                rotate: [-45, -25, 10],
+                x: -(typeof window !== "undefined" ? window.innerWidth * 0.45 - 24 : 400),
+                y: typeof window !== "undefined" ? window.innerHeight * 0.45 - 24 : 350,
+                rotate: 0,
+                scale: 0.6,
+                opacity: [1, 1, 1, 0.4],
               }}
               transition={{
-                duration: 1.1,
-                ease: [0.25, 0.46, 0.45, 0.94],
-                times: [0, 0.4, 1],
+                duration: 1.2,
+                ease: [0.22, 0.61, 0.36, 1],
+                x: { duration: 1.2, ease: [0.22, 0.61, 0.36, 1] },
+                y: { duration: 1.2, ease: [0.55, 0.0, 0.45, 1] },
+                rotate: { duration: 1.2, ease: "easeOut" },
               }}
             >
               🎯
             </motion.div>
 
-            {/* Trail particles */}
-            {[...Array(5)].map((_, i) => (
+            {/* Trail particles — follow the dart arc from top-right to center */}
+            {[...Array(8)].map((_, i) => (
               <motion.div
                 key={i}
                 className="absolute rounded-full"
                 style={{
-                  left: "50%",
-                  bottom: "100px",
-                  width: "6px",
-                  height: "6px",
+                  top: "5%",
+                  right: "5%",
+                  width: `${7 - i * 0.5}px`,
+                  height: `${7 - i * 0.5}px`,
                   background: i % 2 === 0 ? "#7c3aed" : "#f97316",
                 }}
+                initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
                 animate={{
-                  y: [0, -80 - i * 40, -(typeof window !== "undefined" ? window.innerHeight * 0.35 : 300) + i * 20],
-                  x: [0, -20 + i * 10, (i - 2) * 15],
-                  opacity: [0, 0.8, 0],
-                  scale: [0.5, 1, 0],
+                  x: -(typeof window !== "undefined" ? window.innerWidth * 0.45 - 24 : 400) * (1 - i * 0.08),
+                  y: (typeof window !== "undefined" ? window.innerHeight * 0.45 - 24 : 350) * (1 - i * 0.08),
+                  opacity: [0, 0.9, 0],
+                  scale: [0, 1.2, 0],
                 }}
                 transition={{
-                  duration: 1.0,
-                  delay: i * 0.05,
-                  ease: "easeOut",
+                  duration: 0.9,
+                  delay: 0.08 + i * 0.06,
+                  ease: [0.22, 0.61, 0.36, 1],
+                  x: { duration: 0.9, delay: 0.08 + i * 0.06, ease: [0.22, 0.61, 0.36, 1] },
+                  y: { duration: 0.9, delay: 0.08 + i * 0.06, ease: [0.55, 0.0, 0.45, 1] },
                 }}
               />
             ))}
